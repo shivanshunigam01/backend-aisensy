@@ -1,0 +1,33 @@
+{
+  "name": "trader-backend-mvc",
+  "version": "1.0.0",
+  "description": "MVC-style Node.js + Express backend built from provided Razorpay API documentation.",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "test": "node tests/verifySignature.test.js"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "mvc",
+    "razorpay",
+    "backend"
+  ],
+  "author": "OpenAI",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "mongoose": "^8.9.5",
+    "morgan": "^1.10.0",
+    "razorpay": "^2.9.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
