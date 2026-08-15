@@ -1,6 +1,6 @@
 const BajajAsdApplication = require('../models/BajajAsdApplication');
 const Lead = require('../models/Lead');
-const { CONSENT_POLICY_VERSION, findAsdLocation } = require('../constants/bajajAsdMasters');
+const { CONSENT_POLICY_VERSION, formatLocationSummary, validateLocationSelection } = require('../constants/bajajAsdMasters');
 const { normalizePhone } = require('./leadsService');
 
 const AUTOMOTIVE_BUSINESS_TYPES = new Set([
@@ -21,6 +21,24 @@ function isValidMobile(raw) {
 function isValidEmail(raw) {
   if (!String(raw ?? '').trim()) return true;
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(raw).trim());
+}
+
+function normalizePan(raw) {
+  return String(raw ?? '').replace(/\s/g, '').toUpperCase();
+}
+
+function normalizeGst(raw) {
+  return String(raw ?? '').replace(/\s/g, '').toUpperCase();
+}
+
+function isValidPan(raw) {
+  if (!String(raw ?? '').trim()) return true;
+  return /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(normalizePan(raw));
+}
+
+function isValidGst(raw) {
+  if (!String(raw ?? '').trim()) return true;
+  return /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(normalizeGst(raw));
 }
 
 function computeLeadScore(form) {
@@ -71,16 +89,11 @@ function computeLeadScore(form) {
 }
 
 function validateApplication(body) {
-  const location = findAsdLocation(body.target_location);
-
-  if (!body.target_location || !location) {
-    return { ok: false, status: 400, error: 'Please select a Sub-Dealership location.' };
-  }
-  if (!String(body.district ?? '').trim()) {
-    return { ok: false, status: 400, error: 'Please select a district.' };
-  }
-  if (!String(body.state ?? '').trim()) {
-    return { ok: false, status: 400, error: 'Please select a state.' };
+  const districts = Array.isArray(body.districts) ? body.districts.map(String) : [];
+  const locations = Array.isArray(body.locations) ? body.locations.map(String) : [];
+  const locationCheck = validateLocationSelection(body.state, districts, locations);
+  if (!locationCheck.ok) {
+    return { ok: false, status: 400, error: locationCheck.error };
   }
 
   const name = String(body.applicant_name ?? '').trim();
@@ -149,6 +162,13 @@ function validateApplication(body) {
     }
   }
 
+  if (!isValidPan(body.pan)) {
+    return { ok: false, status: 400, error: 'Enter a valid PAN (e.g. ABCDE1234F).' };
+  }
+  if (!isValidGst(body.gst_number)) {
+    return { ok: false, status: 400, error: 'Enter a valid 15-character GST number.' };
+  }
+
   if (!body.investment_capacity) {
     return { ok: false, status: 400, error: 'Select investment capacity.' };
   }
@@ -170,25 +190,29 @@ function validateApplication(body) {
     return { ok: false, status: 400, error: 'Disclaimer acknowledgement is required.' };
   }
 
-  return { ok: true, location };
+  return { ok: true, districts, locations };
 }
 
-function buildPayload(body, location) {
+function buildPayload(body, districts, locations) {
   const mobile = normalizePhone(body.mobile);
   const alternate_mobile = String(body.alternate_mobile ?? '').trim()
     ? normalizePhone(body.alternate_mobile)
     : '';
 
   const payload = {
-    target_location: body.target_location,
-    target_location_label: location.label,
-    district: String(body.district).trim(),
     state: body.state,
+    districts,
+    locations,
+    target_location: locations.join(','),
+    target_location_label: formatLocationSummary(body.state, districts, locations),
+    district: districts.join(', '),
     applicant_name: String(body.applicant_name).trim(),
     mobile,
     alternate_mobile,
     email: String(body.email ?? '').trim(),
     current_town: String(body.current_town).trim(),
+    pan: normalizePan(body.pan),
+    gst_number: normalizeGst(body.gst_number),
     is_existing_business: body.is_existing_business,
     business_name: String(body.business_name ?? '').trim(),
     business_type:
@@ -217,17 +241,17 @@ async function submitApplication(body) {
   const validation = validateApplication(body);
   if (!validation.ok) return validation;
 
-  const payload = buildPayload(body, validation.location);
+  const payload = buildPayload(body, validation.districts, validation.locations);
 
   const duplicate = await BajajAsdApplication.findOne({
     mobile: payload.mobile,
-    target_location: payload.target_location
+    state: payload.state
   });
   if (duplicate) {
     return {
       ok: false,
       status: 409,
-      error: 'An application with this mobile number already exists for this location.'
+      error: 'An application with this mobile number already exists for this state.'
     };
   }
 

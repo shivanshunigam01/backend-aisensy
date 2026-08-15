@@ -2,15 +2,19 @@ const mongoose = require('mongoose');
 
 const bajajAsdApplicationSchema = new mongoose.Schema(
   {
-    target_location: { type: String, required: true, trim: true, maxlength: 64 },
-    target_location_label: { type: String, trim: true, maxlength: 200, default: '' },
-    district: { type: String, required: true, trim: true, maxlength: 120 },
     state: { type: String, required: true, enum: ['Bihar', 'Jharkhand'] },
+    districts: { type: [String], required: true, default: [] },
+    locations: { type: [String], required: true, default: [] },
+    target_location: { type: String, trim: true, maxlength: 500, default: '' },
+    target_location_label: { type: String, trim: true, maxlength: 1000, default: '' },
+    district: { type: String, trim: true, maxlength: 500, default: '' },
     applicant_name: { type: String, required: true, trim: true, maxlength: 80 },
     mobile: { type: String, required: true, trim: true, maxlength: 10 },
     alternate_mobile: { type: String, trim: true, maxlength: 10, default: '' },
     email: { type: String, trim: true, maxlength: 254, default: '' },
     current_town: { type: String, required: true, trim: true, maxlength: 100 },
+    pan: { type: String, trim: true, maxlength: 10, default: '' },
+    gst_number: { type: String, trim: true, maxlength: 15, default: '' },
     is_existing_business: { type: String, required: true, enum: ['Yes', 'No'] },
     business_name: { type: String, trim: true, maxlength: 120, default: '' },
     business_type: { type: String, required: true, trim: true, maxlength: 120 },
@@ -40,20 +44,24 @@ const bajajAsdApplicationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-bajajAsdApplicationSchema.index({ mobile: 1, target_location: 1 }, { unique: true });
+bajajAsdApplicationSchema.index({ mobile: 1, state: 1 }, { unique: true });
 
 function toPublic(doc) {
   return {
     id: doc._id.toString(),
-    target_location: doc.target_location,
-    target_location_label: doc.target_location_label,
-    district: doc.district,
     state: doc.state,
+    districts: doc.districts ?? [],
+    locations: doc.locations ?? [],
+    target_location: doc.target_location || '',
+    target_location_label: doc.target_location_label || '',
+    district: doc.district || '',
     applicant_name: doc.applicant_name,
     mobile: doc.mobile,
     alternate_mobile: doc.alternate_mobile || '',
     email: doc.email || '',
     current_town: doc.current_town,
+    pan: doc.pan || '',
+    gst_number: doc.gst_number || '',
     is_existing_business: doc.is_existing_business,
     business_name: doc.business_name || '',
     business_type: doc.business_type,
