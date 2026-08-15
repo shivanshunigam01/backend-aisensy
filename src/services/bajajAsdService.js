@@ -73,8 +73,9 @@ function computeLeadScore(form) {
   };
   if (form.space_status) score += spaceScore[form.space_status] ?? 0;
 
-  if (form.space_size && form.space_size !== 'Not sure') score += 5;
-  if (form.frontage && form.frontage !== 'Not sure') score += 5;
+  if (form.showroom_space && form.showroom_space !== 'Not sure') score += 3;
+  if (form.workshop_space && form.workshop_space !== 'Not sure') score += 3;
+  if (form.frontage && form.frontage !== 'Not sure') score += 4;
 
   const timelineScore = {
     Immediately: 20,
@@ -175,6 +176,15 @@ function validateApplication(body) {
   if (!body.space_status) {
     return { ok: false, status: 400, error: 'Select commercial space availability.' };
   }
+  if (!body.showroom_space) {
+    return { ok: false, status: 400, error: 'Select showroom space.' };
+  }
+  if (!body.workshop_space) {
+    return { ok: false, status: 400, error: 'Select workshop space.' };
+  }
+  if (!body.frontage) {
+    return { ok: false, status: 400, error: 'Select frontage.' };
+  }
   if (!body.start_timeline) {
     return { ok: false, status: 400, error: 'Select when you can start.' };
   }
@@ -223,7 +233,9 @@ function buildPayload(body, districts, locations) {
     oem_brand: String(body.oem_brand ?? '').trim(),
     investment_capacity: body.investment_capacity,
     space_status: body.space_status,
-    space_size: String(body.space_size ?? '').trim(),
+    showroom_space: String(body.showroom_space ?? '').trim(),
+    workshop_space: String(body.workshop_space ?? '').trim(),
+    space_size: `Showroom: ${String(body.showroom_space ?? '').trim()} · Workshop: ${String(body.workshop_space ?? '').trim()}`,
     frontage: String(body.frontage ?? '').trim(),
     start_timeline: body.start_timeline,
     applicant_remarks: String(body.applicant_remarks ?? '').trim(),
