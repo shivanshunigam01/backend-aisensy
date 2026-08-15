@@ -3,6 +3,7 @@ const http = require('http');
 const app = require('./src/app');
 const { env } = require('./src/config/env');
 const { connectMongo } = require('./src/config/db');
+const { bootstrapData } = require('./src/config/bootstrap');
 const AdWord = require('./src/utils/AdWord');
 
 const server = http.createServer(app);
@@ -10,6 +11,7 @@ const server = http.createServer(app);
 async function start() {
   try {
     await connectMongo();
+    await bootstrapData();
   } catch (err) {
     console.error('[mongo] Connection failed:', err.message);
     process.exit(1);
