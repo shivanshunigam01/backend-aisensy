@@ -73,6 +73,80 @@ Content-Type: application/json
 }
 ```
 
+### Leads (general)
+
+```http
+POST /api/leads
+Content-Type: application/json
+
+{
+  "name": "Demo User",
+  "phone": "9876543210",
+  "email": "demo@example.com",
+  "source": "website"
+}
+```
+
+```http
+GET /api/leads
+x-admin-token: ZV-ADMIN-2026-DEMO
+```
+
+```http
+POST /api/leads/update
+x-admin-token: ZV-ADMIN-2026-DEMO
+Content-Type: application/json
+
+{ "id": "...", "status": "contacted", "admin_notes": "Called back" }
+```
+
+```http
+POST /api/leads/delete
+x-admin-token: ZV-ADMIN-2026-DEMO
+Content-Type: application/json
+
+{ "id": "..." }
+```
+
+### Bajaj ASD application
+
+```http
+POST /api/bajaj-asd/apply
+Content-Type: application/json
+
+{
+  "target_location": "patna-sd",
+  "district": "Patna",
+  "state": "Bihar",
+  "applicant_name": "राम कुमार",
+  "mobile": "9876543210",
+  "current_town": "Patna",
+  "is_existing_business": "Yes",
+  "business_name": "ABC Auto",
+  "business_type": "Two-Wheeler Dealer",
+  "years_in_business": "3–5 years",
+  "existing_oem": "No",
+  "investment_capacity": "₹10–15 Lakh",
+  "space_status": "Own space available",
+  "start_timeline": "Within 1 Month",
+  "contact_consent": true,
+  "disclaimer_ack": true
+}
+```
+
+```http
+GET /api/bajaj-asd/applications
+x-admin-token: ZV-ADMIN-2026-DEMO
+```
+
+```http
+POST /api/bajaj-asd/update
+x-admin-token: ZV-ADMIN-2026-DEMO
+Content-Type: application/json
+
+{ "id": "...", "status": "qualified", "admin_notes": "Interview scheduled" }
+```
+
 ## Notes
 
 - `enterprise` is intentionally rejected for order creation.
