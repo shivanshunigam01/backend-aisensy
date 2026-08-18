@@ -1,5 +1,6 @@
 const express = require('express');
 const paymentController = require('../controllers/paymentController');
+const { requireMongo } = require('../middleware/requireMongo');
 const {
   validateCreateOrderRequest,
   validateVerifyPaymentRequest
@@ -7,7 +8,12 @@ const {
 
 const router = express.Router();
 
-router.post('/razorpay/create-order', validateCreateOrderRequest, paymentController.createOrder);
+router.post(
+  '/razorpay/create-order',
+  requireMongo,
+  validateCreateOrderRequest,
+  paymentController.createOrder
+);
 router.post('/razorpay/verify-payment', validateVerifyPaymentRequest, paymentController.verifyPayment);
 
 module.exports = router;

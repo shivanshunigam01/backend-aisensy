@@ -23,7 +23,10 @@ function userToPublic(doc) {
     timezone: doc.timezone,
     picture: doc.picture || undefined,
     password: null,
-    authMethod: doc.authMethod
+    authMethod: doc.authMethod,
+    subscriptionPlan: doc.subscriptionPlan || null,
+    subscriptionStatus: doc.subscriptionStatus || null,
+    trialEndsAt: doc.trialEndsAt ? doc.trialEndsAt.toISOString() : null
   };
 }
 

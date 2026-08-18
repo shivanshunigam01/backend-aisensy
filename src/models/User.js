@@ -23,7 +23,10 @@ const userSchema = new mongoose.Schema(
     timezone: { type: String, required: true, trim: true, maxlength: 120 },
     picture: { type: String, trim: true, maxlength: 2048, default: '' },
     passwordHash: { type: String, default: null, select: false },
-    authMethod: { type: String, required: true, enum: ['password', 'google', 'pending'] }
+    authMethod: { type: String, required: true, enum: ['password', 'google', 'pending'] },
+    subscriptionPlan: { type: String, trim: true, maxlength: 120, default: null },
+    subscriptionStatus: { type: String, trim: true, maxlength: 32, default: null },
+    trialEndsAt: { type: Date, default: null }
   },
   { timestamps: true }
 );
