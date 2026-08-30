@@ -17,7 +17,7 @@ const CMS_DEFAULTS = {
     gstin: '10AACCZ7470L1Z3',
     email: 'digital@zentroverse.com',
     website: 'https://zentroverse.com',
-    phone: '+91 99999 99999',
+    phone: '+91 99730 45587',
     whatsappNumber: '919999999999',
     whatsappMessage: "Hi Zentroverse, I'd like to learn more about your business growth solutions.",
     hours: 'Mon–Sat, 10am–7pm IST',

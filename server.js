@@ -14,7 +14,7 @@ async function start() {
     await bootstrapData();
   } catch (err) {
     console.error('[mongo] Connection failed:', err.message);
-    process.exit(1);
+    console.error('[mongo] API will still listen; database routes return 503 until Mongo is reachable.');
   }
 
   server.listen(env.port, () => {

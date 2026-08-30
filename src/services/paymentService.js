@@ -1,14 +1,15 @@
 const { getRazorpayClient } = require('../config/razorpay');
 const { env } = require('../config/env');
-const { PLAN_AMOUNTS_PAISE } = require('../constants/planAmounts');
 const { ApiError } = require('../utils/apiError');
 const PaymentModel = require('../models/PaymentModel');
 const { verifyRazorpaySignature } = require('../utils/signature');
+const planService = require('./planService');
 
 async function createOrder({ planId, email }) {
-  const amount = PLAN_AMOUNTS_PAISE[planId];
+  const plan = await planService.getBillablePlan(planId);
+  const amount = plan?.amountInPaise;
 
-  if (!amount) {
+  if (!plan || !amount) {
     throw new ApiError(400, 'Invalid or unpaid plan.');
   }
 
