@@ -9,11 +9,8 @@ const cmsRoutes = require('./cmsRoutes');
 const mediaRoutes = require('./mediaRoutes');
 const crmRoutes = require('./crmRoutes');
 const hyOffersRoutes = require('./hyOffersRoutes');
-<<<<<<< HEAD
 const zentroflowRoutes = require('../zentroflow/routes');
-=======
 const planRoutes = require('./planRoutes');
->>>>>>> 71f5b35d56fb9b00f78d0671fc07ac5578ac5e50
 
 const router = express.Router();
 
