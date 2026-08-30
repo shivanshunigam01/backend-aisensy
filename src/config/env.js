@@ -15,7 +15,26 @@ const env = {
   corsOrigins: (process.env.CORS_ORIGIN || 'http://localhost:8080,http://localhost:5173,https://zentroverse.com,https://www.zentroverse.com,https://zentrosure.com,https://www.zentrosure.com')
     .split(',')
     .map((s) => s.trim())
-    .filter(Boolean)
+    .filter(Boolean),
+
+  // ZentroFlow 2.0
+  zfJwtSecret: process.env.ZF_JWT_SECRET || process.env.ADMIN_JWT_SECRET || process.env.ADMIN_PANEL_TOKEN || 'ZF-JWT-SECRET-CHANGE-ME',
+  zfSeedEmail: process.env.ZF_SEED_EMAIL || 'flow@zentroverse.in',
+  zfSeedPassword: process.env.ZF_SEED_PASSWORD || 'ZentroFlow@2026',
+
+  // Meta Lead Ads / CAPI (share keys when ready)
+  metaAppId: process.env.META_APP_ID || '',
+  metaAppSecret: process.env.META_APP_SECRET || '',
+  metaAccessToken: process.env.META_ACCESS_TOKEN || '',
+  metaSystemUserToken: process.env.META_SYSTEM_USER_TOKEN || '',
+  metaWebhookVerifyToken: process.env.META_WEBHOOK_VERIFY_TOKEN || '',
+  metaGraphVersion: process.env.META_GRAPH_VERSION || 'v21.0',
+
+  // Reserved communication providers
+  whatsappApiKey: process.env.WHATSAPP_API_KEY || '',
+  whatsappApiUrl: process.env.WHATSAPP_API_URL || '',
+  emailProvider: process.env.EMAIL_PROVIDER || '',
+  voiceProviderApiKey: process.env.VOICE_PROVIDER_API_KEY || ''
 };
 
 module.exports = { env };
