@@ -49,6 +49,7 @@ async function postQuotation(req, res, next) {
     const quotation = await crmService.createQuotation(req.body);
     return res.status(201).json({ quotation });
   } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
     return next(err);
   }
 }
@@ -59,6 +60,7 @@ async function putQuotation(req, res, next) {
     if (!quotation) return res.status(404).json({ error: 'Quotation not found.' });
     return res.json({ quotation });
   } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
     return next(err);
   }
 }
@@ -95,6 +97,7 @@ async function postInvoice(req, res, next) {
     const invoice = await crmService.createInvoice(req.body);
     return res.status(201).json({ invoice });
   } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
     return next(err);
   }
 }
@@ -105,6 +108,7 @@ async function putInvoice(req, res, next) {
     if (!invoice) return res.status(404).json({ error: 'Invoice not found.' });
     return res.json({ invoice });
   } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
     return next(err);
   }
 }
@@ -124,6 +128,7 @@ async function markPaid(req, res, next) {
     if (!result) return res.status(404).json({ error: 'Invoice not found.' });
     return res.json(result);
   } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
     return next(err);
   }
 }

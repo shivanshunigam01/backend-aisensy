@@ -22,6 +22,10 @@ const env = {
   zfSeedEmail: process.env.ZF_SEED_EMAIL || 'flow@zentroverse.in',
   zfSeedPassword: process.env.ZF_SEED_PASSWORD || 'ZentroFlow@2026',
 
+  // HR module (PeopleFlow-compatible collections under /api/hr)
+  hrJwtSecret: process.env.HR_JWT_SECRET || process.env.ADMIN_JWT_SECRET || process.env.ADMIN_PANEL_TOKEN || 'HR-JWT-SECRET-CHANGE-ME',
+  hrAllowPublicRegister: String(process.env.HR_ALLOW_PUBLIC_REGISTER || 'true').toLowerCase() !== 'false',
+
   // Meta Lead Ads / CAPI (share keys when ready)
   metaAppId: process.env.META_APP_ID || '',
   metaAppSecret: process.env.META_APP_SECRET || '',

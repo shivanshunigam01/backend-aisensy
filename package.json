@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "test": "node tests/verifySignature.test.js"
+    "test": "node tests/verifySignature.test.js",
+    "hr:install": "npm install --prefix hr",
+    "hr:dev": "npm run dev --prefix hr",
+    "hr:build": "npm run build --prefix hr",
+    "hr:start": "npm run start --prefix hr"
   },
   "keywords": [
     "node",
