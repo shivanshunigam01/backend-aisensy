@@ -186,28 +186,6 @@ export async function notifyExpiringDocuments(organizationId: string) {
   }
 }
 
-export async function notifyPayslipsGenerated(input: {
-  organizationId: string
-  periodLabel: string
-  slips: { userId: string; payrollId: string }[]
-}) {
-  await Promise.all(
-    input.slips
-      .filter((slip) => slip.userId && slip.payrollId)
-      .map((slip) =>
-        notify({
-          userId: slip.userId,
-          organizationId: input.organizationId,
-          title: "Payslip ready",
-          message: `Your salary slip for ${input.periodLabel} is ready.`,
-          type: "payroll",
-          link: `/payroll?payslip=${slip.payrollId}`,
-          metadata: { entityId: slip.payrollId, event: "payroll.generated" },
-        })
-      )
-  )
-}
-
 export async function notifyAttendanceLate(input: {
   organizationId: string
   actorUserId: string
