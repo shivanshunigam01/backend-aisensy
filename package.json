@@ -4,8 +4,8 @@
   "description": "MVC-style Node.js + Express backend built from provided Razorpay API documentation.",
   "main": "server.js",
   "scripts": {
+     "start": "node server.js",
     "dev": "nodemon server.js",
-    "start": "node server.js",
     "test": "node tests/verifySignature.test.js",
     "hr:install": "npm install --prefix hr",
     "hr:dev": "npm run dev --prefix hr",
@@ -32,6 +32,6 @@
     "razorpay": "^2.9.4"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.14"
   }
 }

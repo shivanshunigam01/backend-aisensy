@@ -22,7 +22,8 @@ export function sortFieldQuery<const T extends readonly [string, ...string[]]>(f
 
 export function listControlFields<const T extends readonly [string, ...string[]]>(
   sortFields: T,
-  limitDefault = 20
+  limitDefault = 20,
+  limitMax = 50
 ) {
   return {
     search: optionalSearchQuery,
@@ -30,6 +31,6 @@ export function listControlFields<const T extends readonly [string, ...string[]]
     sort: sortFieldQuery(sortFields),
     order: sortOrderQuery,
     page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(50).default(limitDefault),
+    limit: z.coerce.number().int().min(1).max(limitMax).default(limitDefault),
   }
 }
