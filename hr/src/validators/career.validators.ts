@@ -17,9 +17,9 @@ export const publicApplySchema = z.object({
   email: z.email("Enter a valid email"),
   phone: z.string().trim().max(30).optional().transform(emptyToUndefined),
   resume: z.string().trim().max(500).optional().transform(emptyToUndefined),
-  experience: z.coerce.number().min(0).max(50).optional().default(0),
+  experience: z.coerce.number().min(0).max(9999).optional().default(0),
   skills: z
-    .array(z.string().trim().min(1).max(40))
+    .array(z.string().trim().min(1).max(500))
     .max(20)
     .optional()
     .default([]),

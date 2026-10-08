@@ -1,6 +1,10 @@
 import { Router } from "express"
 
 import {
+  applyIncrements,
+  getIncrementWorksheet,
+} from "../controllers/increment.controller.js"
+import {
   createSalaryStructure,
   generatePayroll,
   getPayroll,
@@ -18,6 +22,10 @@ import { asyncHandler } from "../middleware/async-handler.js"
 import { authorizePermissions } from "../middleware/authorize.js"
 import { validateBody, validateQuery } from "../middleware/validate.js"
 import {
+  applyIncrementsSchema,
+  incrementWorksheetQuerySchema,
+} from "../validators/increment.validators.js"
+import {
   createSalaryStructureSchema,
   generatePayrollSchema,
   payrollListQuerySchema,
@@ -31,10 +39,35 @@ export const payrollRouter = Router()
 payrollRouter.use(authenticate)
 
 const canRead = [PERMISSIONS.PAYROLL_READ, PERMISSIONS.PAYROLL_MANAGE] as const
+const canReadOwn = [
+  PERMISSIONS.PAYROLL_READ,
+  PERMISSIONS.PAYROLL_MANAGE,
+  PERMISSIONS.PAYROLL_READ_SELF,
+] as const
+
+const canViewIncrements = [
+  PERMISSIONS.PAYROLL_READ,
+  PERMISSIONS.PAYROLL_MANAGE,
+  PERMISSIONS.PERFORMANCE_MANAGE,
+] as const
+
+payrollRouter.get(
+  "/increments/worksheet",
+  authorizePermissions(...canViewIncrements),
+  validateQuery(incrementWorksheetQuerySchema),
+  asyncHandler(getIncrementWorksheet)
+)
+
+payrollRouter.post(
+  "/increments/apply",
+  authorizePermissions(PERMISSIONS.PAYROLL_MANAGE),
+  validateBody(applyIncrementsSchema),
+  asyncHandler(applyIncrements)
+)
 
 payrollRouter.get(
   "/",
-  authorizePermissions(...canRead),
+  authorizePermissions(...canReadOwn),
   validateQuery(payrollListQuerySchema),
   asyncHandler(listPayrolls)
 )
@@ -80,7 +113,7 @@ payrollRouter.patch(
   asyncHandler(updateSalaryStructure)
 )
 
-payrollRouter.get("/:id/payslip", authorizePermissions(...canRead), asyncHandler(getPayslip))
+payrollRouter.get("/:id/payslip", authorizePermissions(...canReadOwn), asyncHandler(getPayslip))
 
 payrollRouter.post(
   "/:id/pay",
@@ -88,4 +121,4 @@ payrollRouter.post(
   asyncHandler(markPayrollPaid)
 )
 
-payrollRouter.get("/:id", authorizePermissions(...canRead), asyncHandler(getPayroll))
+payrollRouter.get("/:id", authorizePermissions(...canReadOwn), asyncHandler(getPayroll))

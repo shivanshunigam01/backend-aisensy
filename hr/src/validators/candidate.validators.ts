@@ -44,14 +44,14 @@ const candidateFields = z.object({
   resumeUrl: resumeUrlSchema,
   currentCompany: optionalText(160),
   currentDesignation: optionalText(160),
-  totalExperience: z.coerce.number().min(0).max(50).optional(),
-  relevantExperience: z.coerce.number().min(0).max(50).optional(),
+  totalExperience: z.coerce.number().min(0).max(9999).optional(),
+  relevantExperience: z.coerce.number().min(0).max(9999).optional(),
   currentCTC: z.coerce.number().min(0).optional(),
   expectedCTC: z.coerce.number().min(0).optional(),
   noticePeriod: optionalText(40),
   currentLocation: optionalText(160),
   preferredLocations: stringList(10, 80),
-  skills: stringList(30, 40),
+  skills: stringList(30, 500),
   qualifications: stringList(20, 160),
   source: z.enum(CANDIDATE_SOURCES).optional(),
   consent: consentSchema.optional(),
@@ -79,7 +79,7 @@ const skillsQuery = z.preprocess((value) => {
       .filter(Boolean)
   }
   return value
-}, z.array(z.string().trim().min(1).max(40)).max(20).optional())
+}, z.array(z.string().trim().min(1).max(500)).max(20).optional())
 
 export const candidateProfileListQuerySchema = z.object({
   email: z.string().trim().max(160).optional().transform(emptyToUndefined),
