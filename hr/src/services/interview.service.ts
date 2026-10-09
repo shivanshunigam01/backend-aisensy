@@ -13,7 +13,6 @@ import { MESSAGES } from "../constants/messages.js"
 import { CandidateModel } from "../models/candidate.model.js"
 import { CandidateSubmissionModel } from "../models/candidate-submission.model.js"
 import { InterviewModel } from "../models/interview.model.js"
-import { OrganizationModel } from "../models/organization.model.js"
 import { RecruitmentMandateModel } from "../models/recruitment-mandate.model.js"
 import { UserModel } from "../models/user.model.js"
 import type { AuthContext } from "../types/auth.js"
@@ -29,11 +28,6 @@ import type {
   InterviewListQueryInput,
   UpdateInterviewInput,
 } from "../validators/interview.validators.js"
-import {
-  buildCandidateInterviewEmail,
-  buildInterviewerInterviewEmail,
-  sendEmail,
-} from "./email.service.js"
 
 const INTERVIEW_POPULATE = [
   { path: "candidateId", select: "firstName lastName name email candidateNumber" },
@@ -153,83 +147,6 @@ function parseDateTime(value: string, label = "Invalid date and time") {
     throw AppError.badRequest(label)
   }
   return date
-}
-
-function formatInterviewWhen(iso: string) {
-  const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return iso || "To be confirmed"
-  return new Intl.DateTimeFormat("en-IN", {
-    dateStyle: "full",
-    timeStyle: "short",
-    timeZone: "Asia/Kolkata",
-  }).format(date)
-}
-
-type PublicInterview = ReturnType<typeof toPublicInterview>
-
-async function notifyInterviewParticipants(interview: PublicInterview, isUpdate = false) {
-  if (interview.status === "CANCELLED" || interview.status === "COMPLETED") {
-    return
-  }
-
-  const org = await OrganizationModel.findById(interview.organizationId).select("name").lean()
-  const companyName = String(org?.name ?? "PeopleFlow")
-  const candidateName = interview.candidate?.name || "Candidate"
-  const interviewerNames = interview.interviewers.map((user) => user.name).filter(Boolean)
-  const position = interview.mandate?.position || "Open role"
-  const shared = {
-    candidateName,
-    interviewerNames,
-    position,
-    companyName,
-    round: interview.round,
-    interviewTypeLabel: interview.interviewTypeLabel,
-    scheduledAtLabel: formatInterviewWhen(interview.scheduledAt),
-    durationMinutes: interview.duration,
-    isUpdate,
-  }
-
-  const sends: Promise<boolean>[] = []
-
-  const candidateEmail = interview.candidate?.email?.trim()
-  if (candidateEmail) {
-    const content = buildCandidateInterviewEmail({
-      ...shared,
-      recipientName: candidateName,
-    })
-    sends.push(
-      sendEmail({
-        to: candidateEmail,
-        subject: content.subject,
-        text: content.text,
-      })
-    )
-  } else {
-    console.warn("[Email] Interview candidate has no email; skipped candidate notice")
-  }
-
-  for (const interviewer of interview.interviewers) {
-    const email = interviewer.email?.trim()
-    if (!email) {
-      console.warn(`[Email] Interviewer ${interviewer.name || interviewer.id} has no email; skipped`)
-      continue
-    }
-    const content = buildInterviewerInterviewEmail({
-      ...shared,
-      recipientName: interviewer.name || "Interviewer",
-    })
-    sends.push(
-      sendEmail({
-        to: email,
-        subject: content.subject,
-        text: content.text,
-      })
-    )
-  }
-
-  if (sends.length > 0) {
-    await Promise.allSettled(sends)
-  }
 }
 
 export function toPublicInterview(doc: Record<string, unknown>) {
@@ -486,15 +403,13 @@ export async function createInterview(auth: AuthContext, input: CreateInterviewI
   )
 
   await created.populate([...INTERVIEW_POPULATE])
-  const publicInterview = toPublicInterview(created.toObject() as Record<string, unknown>)
   await recordActivity(auth.organizationId, {
     title: `Interview scheduled for ${candidate.name || "candidate"}`,
     detail: `${mandate.mandateNumber} · Round ${round}`,
     tone: "success",
   })
-  await notifyInterviewParticipants(publicInterview, false)
 
-  return publicInterview
+  return toPublicInterview(created.toObject() as Record<string, unknown>)
 }
 
 export async function updateInterview(auth: AuthContext, id: string, input: UpdateInterviewInput) {
@@ -580,19 +495,6 @@ export async function updateInterview(auth: AuthContext, id: string, input: Upda
     previousData,
     newData: publicInterview,
   })
-
-  const scheduleChanged =
-    previousData.scheduledAt !== publicInterview.scheduledAt ||
-    previousData.duration !== publicInterview.duration ||
-    previousData.interviewType !== publicInterview.interviewType ||
-    previousData.round !== publicInterview.round ||
-    previousData.status !== publicInterview.status ||
-    previousData.interviewerIds.join(",") !== publicInterview.interviewerIds.join(",")
-
-  if (scheduleChanged) {
-    await notifyInterviewParticipants(publicInterview, true)
-  }
-
   return publicInterview
 }
 
