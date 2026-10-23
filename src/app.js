@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const routes = require('./routes');
 const { getMongoHealth } = require('./config/db');
 const { env } = require('./config/env');
-const { corsOptions } = require('./config/cors');
+const { corsOptions, applyCredentialedCorsHeaders } = require('./config/cors');
 const { isCloudinaryConfigured } = require('./services/cloudinaryService');
 const { notFoundHandler } = require('./middleware/notFoundHandler');
 const { errorHandler } = require('./middleware/errorHandler');
@@ -16,6 +16,8 @@ const app = express();
 
 app.use(helmet());
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+app.use(applyCredentialedCorsHeaders);
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 app.use(morgan('dev'));

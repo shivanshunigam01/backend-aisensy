@@ -31,7 +31,10 @@ function applyPeopleflowEnv() {
 
   if (!process.env.APP_URL) {
     process.env.APP_URL =
-      process.env.PEOPLEFLOW_APP_URL || 'http://localhost:8080';
+      process.env.PEOPLEFLOW_APP_URL ||
+      (process.env.NODE_ENV === 'production'
+        ? 'https://www.zentroverse.com'
+        : 'http://localhost:8080');
   }
 
   const corsSet = new Set(siteEnv.corsOrigins);
@@ -45,6 +48,8 @@ function applyPeopleflowEnv() {
   }
   corsSet.add('http://localhost:8080');
   corsSet.add('http://127.0.0.1:8080');
+  corsSet.add('https://www.zentroverse.com');
+  corsSet.add('https://zentroverse.com');
   process.env.CORS_ORIGIN = [...corsSet].join(',');
 
   if (process.env.ALLOW_PUBLIC_REGISTER === undefined) {
