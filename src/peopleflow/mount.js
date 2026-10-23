@@ -53,6 +53,15 @@ function applyPeopleflowEnv() {
       : 'false';
   }
 
+  if (!process.env.REFRESH_COOKIE_PATH) {
+    process.env.REFRESH_COOKIE_PATH = '/api';
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    if (!process.env.TRUST_PROXY) process.env.TRUST_PROXY = 'true';
+    if (!process.env.COOKIE_SAMESITE) process.env.COOKIE_SAMESITE = 'none';
+  }
+
   if (!process.env.CLOUDINARY_CLOUD_NAME && siteEnv.cloudinaryCloudName) {
     process.env.CLOUDINARY_CLOUD_NAME = siteEnv.cloudinaryCloudName;
     process.env.CLOUDINARY_API_KEY = siteEnv.cloudinaryApiKey;
@@ -92,9 +101,11 @@ async function mountPeopleflow(app) {
   const errorMod = await import(hrDistFile('middleware/error-handler.js'));
 
   peopleflowErrorHandler = errorMod.errorHandler;
-  app.use('/api/v1', routesMod.createApiRouter());
+  const peopleflowRouter = routesMod.createApiRouter();
+  app.use('/api/v1', peopleflowRouter);
+  app.use('/api/hr', peopleflowRouter);
 
-  console.info('[PeopleFlow] /api/v1 mounted');
+  console.info('[PeopleFlow] /api/v1 and legacy /api/hr mounted');
 }
 
 function getPeopleflowErrorHandler() {

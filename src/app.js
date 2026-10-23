@@ -36,7 +36,7 @@ function registerErrorHandlers() {
   const pfError = getPeopleflowErrorHandler();
   if (pfError) {
     app.use((err, req, res, next) => {
-      if (req.originalUrl.startsWith('/api/v1')) {
+      if (req.originalUrl.startsWith('/api/v1') || req.originalUrl.startsWith('/api/hr')) {
         return pfError(err, req, res, next);
       }
       return next(err);

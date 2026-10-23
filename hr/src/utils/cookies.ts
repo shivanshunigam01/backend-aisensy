@@ -4,7 +4,7 @@ import { env, isProduction } from "../config/env.js"
 import { AUTH_COOKIE } from "../constants/auth.js"
 
 function refreshCookiePath() {
-  return `${env.API_PREFIX}/auth`
+  return env.REFRESH_COOKIE_PATH || `${env.API_PREFIX}/auth`
 }
 
 function cookieOptions(): CookieOptions {

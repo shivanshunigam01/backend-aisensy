@@ -21,6 +21,8 @@ const envSchema = z
     CORS_ORIGIN: z.string().min(1).default("http://localhost:3000"),
     COOKIE_SAMESITE: z.enum(["lax", "strict", "none"]).default("lax"),
     COOKIE_DOMAIN: z.string().optional().default(""),
+    /** Shared path for /api/v1 and legacy /api/hr refresh cookies */
+    REFRESH_COOKIE_PATH: z.string().min(1).default("/api"),
     ALLOW_PUBLIC_REGISTER: booleanFromEnv(true),
     JSON_BODY_LIMIT: z.string().min(1).default("1mb"),
     RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(15 * 60 * 1000),
