@@ -10,7 +10,6 @@ const mediaRoutes = require('./mediaRoutes');
 const crmRoutes = require('./crmRoutes');
 const hyOffersRoutes = require('./hyOffersRoutes');
 const zentroflowRoutes = require('../zentroflow/routes');
-const hrRoutes = require('../hr/routes');
 const planRoutes = require('./planRoutes');
 
 const router = express.Router();
@@ -24,7 +23,6 @@ router.use('/media', mediaRoutes);
 router.use('/crm', crmRoutes);
 router.use('/hy-offers', hyOffersRoutes);
 router.use('/zentroflow', zentroflowRoutes);
-router.use('/hr', hrRoutes);
 router.use(paymentRoutes);
 router.use(leadsRoutes);
 router.use(bajajAsdRoutes);

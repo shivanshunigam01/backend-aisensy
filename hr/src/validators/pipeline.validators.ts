@@ -8,7 +8,7 @@ export const pipelineListQuerySchema = z.object({
   mandateId: objectIdSchema.optional(),
   recruiterId: objectIdSchema.optional(),
   stage: z.enum(PIPELINE_STAGES).optional(),
-  ...listControlFields(["createdAt"] as const, 50),
+  ...listControlFields(["createdAt"] as const, 50, 200),
 })
 
 export const pipelineTransitionSchema = z.object({

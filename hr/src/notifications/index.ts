@@ -6,6 +6,7 @@ export {
   notifyExpiringDocuments,
   notifyLeaveDecided,
   notifyLeaveSubmitted,
+  notifyPayslipsGenerated,
 } from "./events.js"
 export { notify, notifyMany, notifyOnce, toPublicNotification } from "./notify.js"
 export { setNotificationTransport, type NotificationTransport } from "./transport.js"

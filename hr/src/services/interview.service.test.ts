@@ -46,10 +46,31 @@ vi.mock("../utils/audit.js", () => ({
   recordAudit: vi.fn().mockResolvedValue(undefined),
 }))
 
+vi.mock("../models/organization.model.js", () => ({
+  OrganizationModel: {
+    findById: vi.fn(),
+  },
+}))
+
+vi.mock("./email.service.js", () => ({
+  sendEmail: vi.fn().mockResolvedValue(true),
+  buildCandidateInterviewEmail: vi.fn((input: { position: string; companyName: string; isUpdate?: boolean }) => ({
+    subject: `Interview ${input.isUpdate ? "updated" : "scheduled"}: ${input.position} at ${input.companyName}`,
+    text: "candidate body",
+  })),
+  buildInterviewerInterviewEmail: vi.fn((input: { candidateName: string; position: string; isUpdate?: boolean }) => ({
+    subject: `Interview ${input.isUpdate ? "updated" : "scheduled"}: ${input.candidateName} — ${input.position}`,
+    text: "interviewer body",
+  })),
+}))
+
 const { InterviewModel } = await import("../models/interview.model.js")
 const { CandidateModel } = await import("../models/candidate.model.js")
 const { RecruitmentMandateModel } = await import("../models/recruitment-mandate.model.js")
 const { CandidateSubmissionModel } = await import("../models/candidate-submission.model.js")
+const { OrganizationModel } = await import("../models/organization.model.js")
+const { UserModel } = await import("../models/user.model.js")
+const { sendEmail } = await import("./email.service.js")
 const { createInterview, getInterview, listInterviews } = await import("./interview.service.js")
 
 const hr = auth("HR_ADMIN", IDS.hrUser)
@@ -154,13 +175,20 @@ describe("interview.service", () => {
       mockQuery({ _id: IDS.mandate, mandateNumber: "RM-2026-0001" }) as never
     )
     vi.mocked(InterviewModel.findOne).mockReturnValue(mockQuery(null) as never)
+    vi.mocked(UserModel.find).mockReturnValue(
+      mockQuery([{ _id: IDS.hrUser, name: "Pat Admin", email: "hr@example.com" }]) as never
+    )
     const created = makeInterview()
     vi.mocked(InterviewModel.create).mockResolvedValue(created as never)
+    vi.mocked(OrganizationModel.findById).mockReturnValue(
+      mockQuery({ name: "Acme Recruiting" }) as never
+    )
 
     const interview = await createInterview(hr, {
       submissionId: IDS.submission,
       scheduledAt: now.toISOString(),
       interviewType: "VIDEO",
+      interviewers: [IDS.hrUser],
     })
 
     expect(InterviewModel.create).toHaveBeenCalledWith(
@@ -174,6 +202,18 @@ describe("interview.service", () => {
       })
     )
     expect(interview.organizationId).toBe(IDS.org)
+    expect(sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "ada@example.com",
+        subject: expect.stringContaining("Interview scheduled"),
+      })
+    )
+    expect(sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "hr@example.com",
+        subject: expect.stringContaining("Ada Lovelace"),
+      })
+    )
   })
 
   it("does not return an interview from another organization", async () => {

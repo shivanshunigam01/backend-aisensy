@@ -14,7 +14,7 @@ const emptyToUndefined = (value: string | undefined) => {
 }
 
 const skillsSchema = z
-  .array(z.string().trim().min(1).max(40))
+  .array(z.string().trim().min(1).max(500))
   .max(20)
   .optional()
   .default([])
@@ -50,7 +50,7 @@ export const createCandidateSchema = z.object({
   email: z.email("Enter a valid email"),
   phone: z.string().trim().max(30).optional().transform(emptyToUndefined),
   resume: z.string().trim().max(500).optional().transform(emptyToUndefined),
-  experience: z.coerce.number().min(0).max(50).optional().default(0),
+  experience: z.coerce.number().min(0).max(9999).optional().default(0),
   skills: skillsSchema,
 })
 
@@ -59,8 +59,8 @@ export const updateCandidateSchema = z.object({
   email: z.email().optional(),
   phone: z.string().trim().max(30).optional().transform(emptyToUndefined),
   resume: z.string().trim().max(500).optional().transform(emptyToUndefined),
-  experience: z.coerce.number().min(0).max(50).optional(),
-  skills: z.array(z.string().trim().min(1).max(40)).max(20).optional(),
+  experience: z.coerce.number().min(0).max(9999).optional(),
+  skills: z.array(z.string().trim().min(1).max(500)).max(20).optional(),
 })
 
 export const candidateListQuerySchema = z.object({
@@ -75,8 +75,8 @@ export const createApplicationSchema = z
     email: z.email().optional(),
     phone: z.string().trim().max(30).optional().transform(emptyToUndefined),
     resume: z.string().trim().max(500).optional().transform(emptyToUndefined),
-    experience: z.coerce.number().min(0).max(50).optional(),
-    skills: z.array(z.string().trim().min(1).max(40)).max(20).optional(),
+    experience: z.coerce.number().min(0).max(9999).optional(),
+    skills: z.array(z.string().trim().min(1).max(500)).max(20).optional(),
     notes: z.string().trim().max(4000).optional().transform(emptyToUndefined),
     appliedDate: z
       .string()

@@ -1,4 +1,20 @@
-# Trader Backend MVC
+# Zentroverse unified API
+
+Single Express server (default port **8787**) for the marketing site, admin, Razorpay, ZentroFlow, and **PeopleFlow HR** at **`/api/v1`**.
+
+PeopleFlow package: [`hr/`](hr/) — build with `npm run hr:build`, mounted via [`src/peopleflow/mount.js`](src/peopleflow/mount.js).
+
+```bash
+cp .env.example .env
+npm run hr:install
+npm run dev
+```
+
+PeopleFlow health: `GET /api/v1/health`
+
+---
+
+# Trader Backend MVC (site /api)
 
 MVC-style Node.js + Express backend generated from the provided API documentation.
 

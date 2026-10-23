@@ -55,6 +55,7 @@ export const RESOURCE_POLICIES = {
   payroll: {
     read: [PERMISSIONS.PAYROLL_READ],
     manage: [PERMISSIONS.PAYROLL_MANAGE],
+    selfRead: [PERMISSIONS.PAYROLL_READ_SELF],
   },
   recruitment: {
     read: [PERMISSIONS.RECRUITMENT_READ],

@@ -45,14 +45,14 @@ export const publicCareerApplySchema = z.object({
   phone: z.string().trim().min(7, "Enter a phone number").max(30),
   currentCompany: z.string().trim().max(160).optional().transform(emptyToUndefined),
   currentDesignation: z.string().trim().max(160).optional().transform(emptyToUndefined),
-  totalExperience: z.coerce.number().min(0).max(50).optional().default(0),
-  relevantExperience: z.coerce.number().min(0).max(50).optional().default(0),
+  totalExperience: z.coerce.number().min(0).max(9999).optional().default(0),
+  relevantExperience: z.coerce.number().min(0).max(9999).optional().default(0),
   currentCTC: z.coerce.number().min(0).optional().default(0),
   expectedCTC: z.coerce.number().min(0).optional().default(0),
   noticePeriod: z.string().trim().max(40).optional().transform(emptyToUndefined),
   currentLocation: z.string().trim().max(160).optional().transform(emptyToUndefined),
   preferredLocations: csvList(10, 80),
-  skills: csvList(30, 40),
+  skills: csvList(30, 500),
   qualifications: csvList(20, 160),
   linkedInUrl: z
     .string()

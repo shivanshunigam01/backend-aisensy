@@ -4,13 +4,16 @@
   "description": "MVC-style Node.js + Express backend built from provided Razorpay API documentation.",
   "main": "server.js",
   "scripts": {
+    "predev": "npm run hr:build",
     "dev": "nodemon server.js",
+    "prestart": "npm run hr:build",
     "start": "node server.js",
     "test": "node tests/verifySignature.test.js",
     "hr:install": "npm install --prefix hr",
     "hr:dev": "npm run dev --prefix hr",
     "hr:build": "npm run build --prefix hr",
-    "hr:start": "npm run start --prefix hr"
+    "hr:start": "npm run start --prefix hr",
+    "hr:test": "npm test --prefix hr"
   },
   "keywords": [
     "node",
@@ -23,6 +26,7 @@
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",

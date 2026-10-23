@@ -1,28 +1,27 @@
-# PeopleFlow HR backend (moved)
+# PeopleFlow API (`@peopleflow/api`)
 
-This folder is the full **PeopleFlow** TypeScript API originally at  
-`hr-module/hr-module-master/backend`.
+Full HR + recruitment SaaS backend for Zentroverse.
 
-## How Zentroverse uses HR
+## Mount
 
-| Surface | Path | Notes |
-|--------|------|--------|
-| **Integrated API** (create-space) | `../src/hr` → `/api/hr/*` | Express 4 + mongoose 8, `hr_*` collections |
-| **Full PeopleFlow package** | this folder | Optional standalone: recruitment suite, AI interviews, etc. |
+Built with `npm run hr:build` and mounted at **`/api/v1`** on the main server ([`../src/peopleflow/mount.js`](../src/peopleflow/mount.js)).
 
-## Standalone (optional)
+## Local (standalone)
 
 ```bash
+cp .env.example .env
 npm install
-cp .env.example .env   # set MONGODB_URI + JWT secrets
-npm run dev            # http://localhost:4000/api/v1
+npm run dev
 ```
 
-From parent `backend/`:
+Health: `GET http://localhost:4000/api/v1/health`
 
-```bash
-npm run hr:install
-npm run hr:dev
-```
+## Scripts
 
-create-space talks to the **integrated** `/api/hr` module, not this package’s port 4000, unless you point the UI elsewhere.
+| Command | Description |
+|---|---|
+| `npm run dev` | Watch mode |
+| `npm run build` | Compile to `dist/` |
+| `npm test` | Vitest |
+
+Parent repo: from `backend-aisensy/`, run `npm run hr:install` once, then `npm run dev` (builds HR + starts unified API on port 8787).

@@ -732,7 +732,7 @@ async function decideLeave(auth: AuthContext, id: string, status: "approved" | "
           },
         },
       ],
-      { new: true }
+      { new: true, updatePipeline: true }
     )
 
     if (!updated) {

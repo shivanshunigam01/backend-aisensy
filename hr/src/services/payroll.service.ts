@@ -2,11 +2,14 @@ import mongoose from "mongoose"
 
 import { MESSAGES } from "../constants/messages.js"
 import { PAYROLL_ELIGIBLE_STATUSES, PAYROLL_CURRENCY } from "../constants/payroll.js"
+import { PERMISSIONS } from "../constants/permissions.js"
+import { notifyPayslipsGenerated } from "../notifications/index.js"
 import { EmployeeModel } from "../models/employee.model.js"
 import { OrganizationModel } from "../models/organization.model.js"
 import { PayrollModel } from "../models/payroll.model.js"
 import { SalaryStructureModel } from "../models/salary-structure.model.js"
 import type { AuthContext } from "../types/auth.js"
+import { hasAnyPermission } from "../utils/access.js"
 import { recordActivity } from "../utils/activity.js"
 import { AppError } from "../utils/app-error.js"
 import {
@@ -192,6 +195,28 @@ function toPublicPayroll(doc: Record<string, unknown>) {
     createdAt: isoOf(doc.createdAt),
     updatedAt: isoOf(doc.updatedAt),
   }
+}
+
+async function selfPayrollEmployeeId(auth: AuthContext) {
+  if (hasAnyPermission(auth.role, [PERMISSIONS.PAYROLL_READ, PERMISSIONS.PAYROLL_MANAGE])) {
+    return null
+  }
+  if (!hasAnyPermission(auth.role, [PERMISSIONS.PAYROLL_READ_SELF])) {
+    throw AppError.forbidden()
+  }
+
+  const employee = await EmployeeModel.findOne({
+    organizationId: auth.organizationId,
+    userId: auth.userId,
+  })
+    .select("_id")
+    .lean()
+
+  if (!employee) {
+    throw AppError.notFound(MESSAGES.NO_EMPLOYEE_PROFILE)
+  }
+
+  return String(employee._id)
 }
 
 async function requireEmployee(organizationId: string, employeeId: string) {
@@ -427,8 +452,14 @@ function payrollFilter(auth: AuthContext, query: PayrollListQueryInput) {
 }
 
 export async function listPayrolls(auth: AuthContext, query: PayrollListQueryInput) {
-  const { filter, month, year } = payrollFilter(auth, query)
-  const matched = await matchingEmployeeIds(auth.organizationId, resolvedSearch(query))
+  const ownEmployeeId = await selfPayrollEmployeeId(auth)
+  const scopedQuery = ownEmployeeId
+    ? { ...query, employeeId: ownEmployeeId, search: undefined, q: undefined }
+    : query
+  const { filter, month, year } = payrollFilter(auth, scopedQuery)
+  const matched = ownEmployeeId
+    ? null
+    : await matchingEmployeeIds(auth.organizationId, resolvedSearch(query))
 
   if (matched) {
     const current = filter.employeeId
@@ -504,9 +535,11 @@ function emptyPayrollList(query: PayrollListQueryInput, month?: number, year?: n
 
 export async function getPayroll(auth: AuthContext, id: string) {
   parseObjectId(id)
+  const ownEmployeeId = await selfPayrollEmployeeId(auth)
   const doc = await PayrollModel.findOne({
     _id: id,
     organizationId: auth.organizationId,
+    ...(ownEmployeeId ? { employeeId: ownEmployeeId } : {}),
   })
     .populate(EMPLOYEE_POPULATE)
     .lean()
@@ -577,8 +610,11 @@ export async function generatePayroll(auth: AuthContext, input: GeneratePayrollI
   }
 
   const employees = await EmployeeModel.find(employeeFilter)
-    .select("firstName lastName profileImage employeeCode departmentId designationId")
-    .lean<EmployeeCard[]>()
+    .select("firstName lastName profileImage employeeCode departmentId designationId userId")
+    .lean<(EmployeeCard & { userId?: mongoose.Types.ObjectId | null })[]>()
+  const userIdByEmployee = new Map(
+    employees.map((employee) => [String(employee._id), employee.userId ? String(employee.userId) : ""])
+  )
 
   const employeeIds = employees.map((employee) => employee._id)
   const skippedInactive = targeted ? targeted.length - employees.length : 0
@@ -705,10 +741,19 @@ export async function generatePayroll(auth: AuthContext, input: GeneratePayrollI
   }
 
   if (populated.length > 0) {
+    const label = periodLabel(input.year, input.month)
     await recordActivity(auth.organizationId, {
       title: "Payroll generated",
-      detail: `${populated.length} ${populated.length === 1 ? "payslip" : "payslips"} for ${periodLabel(input.year, input.month)}`,
+      detail: `${populated.length} ${populated.length === 1 ? "payslip" : "payslips"} for ${label}`,
       tone: "success",
+    })
+    await notifyPayslipsGenerated({
+      organizationId: auth.organizationId,
+      periodLabel: label,
+      slips: populated.map((item) => ({
+        payrollId: String(item._id),
+        userId: userIdByEmployee.get(asId(item.employeeId)) ?? "",
+      })),
     })
   }
 
