@@ -34,9 +34,18 @@ function applyPeopleflowEnv() {
       process.env.PEOPLEFLOW_APP_URL || 'http://localhost:8080';
   }
 
-  if (!process.env.CORS_ORIGIN && siteEnv.corsOrigins.length) {
-    process.env.CORS_ORIGIN = siteEnv.corsOrigins.join(',');
+  const corsSet = new Set(siteEnv.corsOrigins);
+  const appUrl = process.env.APP_URL || process.env.PEOPLEFLOW_APP_URL;
+  if (appUrl) {
+    try {
+      corsSet.add(new URL(appUrl).origin);
+    } catch {
+      /* ignore invalid APP_URL */
+    }
   }
+  corsSet.add('http://localhost:8080');
+  corsSet.add('http://127.0.0.1:8080');
+  process.env.CORS_ORIGIN = [...corsSet].join(',');
 
   if (process.env.ALLOW_PUBLIC_REGISTER === undefined) {
     process.env.ALLOW_PUBLIC_REGISTER = siteEnv.hrAllowPublicRegister

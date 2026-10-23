@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const routes = require('./routes');
 const { getMongoHealth } = require('./config/db');
 const { env } = require('./config/env');
+const { corsOptions } = require('./config/cors');
 const { isCloudinaryConfigured } = require('./services/cloudinaryService');
 const { notFoundHandler } = require('./middleware/notFoundHandler');
 const { errorHandler } = require('./middleware/errorHandler');
@@ -14,15 +15,7 @@ const { getPeopleflowErrorHandler } = require('./peopleflow/mount');
 const app = express();
 
 app.use(helmet());
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || env.corsOrigins.includes(origin)) return callback(null, true);
-      return callback(null, true);
-    },
-    credentials: true
-  })
-);
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 app.use(morgan('dev'));

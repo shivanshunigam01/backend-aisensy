@@ -12,7 +12,7 @@ const env = {
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || '',
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || '',
   cloudinaryUploadFolder: process.env.CLOUDINARY_UPLOAD_FOLDER || 'zentroverse',
-  corsOrigins: (process.env.CORS_ORIGIN || 'http://localhost:8080,http://localhost:5173,https://zentroverse.com,https://www.zentroverse.com,https://zentrosure.com,https://www.zentrosure.com')
+  corsOrigins: (process.env.CORS_ORIGIN || 'http://localhost:8080,http://127.0.0.1:8080,http://localhost:5173,http://127.0.0.1:5173,https://zentroverse.com,https://www.zentroverse.com,https://zentrosure.com,https://www.zentrosure.com,https://backend.zentrosure.com')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean),
